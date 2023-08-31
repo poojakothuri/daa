@@ -1,0 +1,170 @@
+  
+1.	Find the names of the instructors(other than computer science) whose salary is greater than at least one instructor in the computer science department 
+
+mysql> select name,salary from instructor where dept_name!="computer science" and salary > any (select salary from instructor where dept_name="computer science");
++----------+--------+
+| name     | salary |
++----------+--------+
+| Einstein |  95000 |
++----------+--------+
+1 row in set (0.00 sec)
+
+ 
+2.	Increase the salary of instructors by 3% whose salary is less than average salary of their departments.
+
+mysql> select  salary+salary*0.03  from instructor i  where salary< any(select avg(salary) from instructor where dept_name=i.dept_name);
++--------------------+
+| salary+salary*0.03 |
++--------------------+
+|           77250.00 |
++--------------------+
+1 row in set (0.00 sec)
+
+mysql> select  dept_name,salary+salary*0.03  from instructor i  where salary< any(select avg(salary) from instructor where dept_name=i.dept_name);
++------------------+--------------------+
+| dept_name        | salary+salary*0.03 |
++------------------+--------------------+
+| Computer Science |           77250.00 |
++------------------+--------------------+
+1 row in set (0.00 sec)
+
+3.	Display the course titles and instructor names taken by the student named ‘kshitiz’
+mysql> select c.title,i.name from course c,takes t,student s,instructor i,teaches tch where s.id=t.id and t.course_id=c.course_id and c.course_id=tch.course_id and tch.id=i.id and s.name="kshitiz";
++-------+----------+
+| title | name     |
++-------+----------+
+| DBMS  | Einstein |
+| PS    | Mozart   |
++-------+----------+
+2 rows in set (0.00 sec)
+
+4.	Display the course titles and department name conducted in building ‘AB-II’ class room ‘112’ 
+mysql> select c.title,c.dept_name from course c,section s where s.course_id=c.course_id and s.building="AB-II" and s.room_no=112;
++-------+------------------+
+| title | dept_name        |\
++-------+------------------+
+| DBMS  | Computer Science |
+| PS    | Maths            |
++-------+------------------+
+2 rows in set (0.00 sec)
+
+5.	Display the student name who have taken all the courses in Computer Science department
+
+
+ select name from student s where not exists(select course_id from course where dept_name="computer science" and course_id not in (select course_id from takes where id=s.id));
++------+
+| name |
++------+
+| Mike |
++------+
+1 row in set (0.00 sec)
+
+6.	Display the highest credit subjects in each year-semester
+
+mysql> select year,semester,max(c.credits) from course c,section s where c.course_id=s.course_id group by year,semester;
++------+----------+----------------+
+| year | semester | max(c.credits) |
++------+----------+----------------+
+| E2   |        1 |              4 |
+| E3   |        1 |              4 |
+| P1   |        1 |              3 |
++------+----------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> select year,semester,title,credits from section s,course c where s.course_id=c.course_id and (year,semester,credits)
+ in (select year,semester,max(credits)  from course c,section s where s.course_id=c.course_id  group by year,semester);
++------+----------+-----------+---------+
+| year | semester | title     | credits |
++------+----------+-----------+---------+
+| P1   |        1 | Physics-1 |       3 |
+| E3   |        1 | OS        |       4 |
+| E2   |        1 | DBMS      |       4 |
++------+----------+-----------+---------+
+3 rows in set (0.00 sec)
+7.	 Display ids and titles of courses which are offered in computer science department in either semester1 or semester 2 of ‘E2’
+
+mysql> select c.course_id,title from course c,section s where c.course_id=s.course_id and year="E2" and c.dept_name="computer science" and (semester=1 or semester=2);;
++-----------+-------+
+| course_id | title |
++-----------+-------+
+| CS2201    | DBMS  |
++-----------+-------+
+1 row in set (0.00 sec)
+
+
+
+8.	Find the number of students who have taken course taught by instructor ‘Korth’
+mysql> select count(*) from takes t,teaches tch,instructor i where i.id=tch.id and tch.course_id=t.course_id and i.name="einstein";
++----------+
+| count(*) |
++----------+
+|        3 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> select count(*) from takes t,teaches tch,instructor i where i.id=tch.id and tch.course_id=t.course_id and i.name="korth";
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+1 row in set (0.00 sec)
+
+9.	Display the details of the students  who got ‘A’ grade in all the courses he h
+
+as taken
+
+mysql> select * from student where id in (select id from takes s where not exists (select course_id from takes where id=s.id and course_id not in (select course_id from takes where id=s.id and  grade="A")));
++------+------+------------------+----------+
+| id   | name | dept_name        | tot_cred |
++------+------+------------------+----------+
+| 1001 | Mike | Computer Science |       70 |
++------+------+------------------+----------+
+1 row in set (0.00 sec)   
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+

@@ -1,0 +1,139 @@
+ create table students(sid int,sname varchar(50),loc varchar(50),year int,primary key(sid));
+
+alter table students rename  schools;
+
+
+ insert into schools values(1,"abc hs","new york",1975),(2,"xyz ms","london",1988),(3,"pqr es","paris",1995),(4,"mno hs","sydney",2003),(5,"efg ms","new york",1990);
+
+ create table students(sid int ,fname varchar(30),lname varchar(30),age int ,gender varchar(30),sch_id int,primary key(sid),foreign key(sch_id) references schools(sid));
+
+ insert into students values(1,"john","smith",16,"m",1),(2,"lisa","js",15,"f",2),(3,"michael","smith",14,"m",1),(4,"sarah","davis",17,"f",4),(5,"robert","js",13,"m",3);
+
+create table courses (cid int ,cname varchar(30),teacher varchar(30)); 
+ alter table courses add primary key(cid);
+
+insert into courses values(1,"maths","adams"),(2,"s","browm"),(3,"h","clark"),(4,"e","davis"),(5,"a","adams");
+
+
+create table  sc(sid int ,cid int ,grade varchar(10),primary key(sid,cid),foreign key(sid) references students(sid),foreign key(cid) references courses(cid));
+
+insert into sc values(1,1,"A"),(1,2,"B"),(1,3,"A"),(2,3,"A"),(2,4,"B"),(3,5,"C"),(4,1,"A"),(5,1,"B"); 
+
+
+. Question: How many students are enrolled in the "Math" course?
+
+mysql> select count(*) from (select * from sc where cid=(select cid from courses where cname="maths")) c;
++----------+
+| count(*) |
++----------+
+|        3 |
++----------+
+1 row in set (0.08 sec)
+
+mysql> select count(*) from sc group by cid having cid=(select cid from courses where cname="maths");
++----------+
+| count(*) |
++----------+
+|        3 |
++----------+
+1 row in set (0.00 sec)
+
+2. Question: What are the coursenames enrolled by female students?   
+
+mysql> select cname from students s ,courses c,sc where  c.cid=sc.cid and s.sid=sc.sid and gender="f";
++-------+
+| cname |
++-------+
+| h     |
+| e     |
+| maths |
++-------+
+3 rows in set (0.00 s
+3. Question: Display the school name(s) of students with Lastname as “Smith”? 
+mysql> select sname from schools ss,students s where ss.sid=s.sch_id and lname="smith";
++--------+
+| sname  |
++--------+
+| abc hs |
+| abc hs |
++--------+
+2 rows in set (0.00 sec) 
+
+mysql> select sname from schools where sid in (select sch_id from students where lname="smith");
++--------+
+| sname  |
++--------+
+| abc hs |
++--------+
+1 row in set (0.00 sec)
+
+
+4. Question: What is the course name, in which all enrolled students got grade A? 
+mysql> select cname from courses c where not exists(select sid from sc where cid=c.cid and sid not in (select sid from sc where cid=c.cid and grade="A"));
++-------+
+| cname |
++-------+
+| h     |
++-------+
+1 row in set (0.00 sec)
+5. Question: What is the total number of students in each school, sorted in descending order of
+student count? ( Display : school name, student count ) 
+
+mysql> select sname,count(*) as count from schools sch,students s where sch.sid=s.sch_id group by s.sch_id order by count(s.sid) desc;
++--------+-------+
+| sname  | count |
++--------+-------+
+| abc hs |     2 |
+| xyz ms |     1 |
+| pqr es |     1 |
+| mno hs |     1 |
++--------+-------+
+4 rows in set (0.00 sec)
+
+6. Question: What is the name of the teacher, who is teaching more than One course? 
+mysql> select teacher from courses group by teacher having count(cid) >1;
++---------+
+| teacher |
++---------+
+| adams   |
++---------+
+1 row in set (0.00 sec)
+
+7. Question: Display the grade awarded to maximum number of students?
+mysql> select grade from sc group by grade order by count(sid) desc limit 1;
++-------+
+| grade |
++-------+
+| A     |
++-------+
+1 row in set (0.00 sec) 
+
+
+mysql> select grade from sc group by grade having count(sid) in ((select max(c)  from (select count(sid) as c from sc group by grade)g));
++-------+
+| grade |
++-------+
+| A     |
++-------+
+1 row in set (0.00 sec) 
+
+
+mysql> select max(c) from (select count(sid) as c from sc group by grade)g;
++--------+
+| max(c) |
++--------+
+|      4 |
++--------+
+1 row in set (0.00 sec)
+
+8. Question: Display the Locations that has more than One school 
+
+
+
+mysql> select loc from schools group by loc having count(sid) >1;
++----------+
+| loc      |
++----------+
+| new york |
++----------+
+1 row in set (0.00 sec)

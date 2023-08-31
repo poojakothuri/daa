@@ -1,0 +1,266 @@
+ create table patients(pid varchar(30),fname varchar(30),lname varchar(30),gender varchar(30),dob date,primary key(pid));
+
+ insert into patients values("p101","john","d","m","1985-5-06"),("p102","jane","s","F","1990-6-7"),("p103","michael","j","m","1982-3-2"),("p104","emily","w","f","1998-9-8"),("p105","jasmine","b","m","1997-2-9"),("p106","joe","crane","f","1996-8-4");
+
+ update patients set dob="1977-2-9" where pid="p105";
+
+create table doctors (did varchar(30),fname varchar (30),lname varchar(30),specialization varchar(30) ,primary key(did));
+
+ insert into doctors values("d201","sarah","a","cardiology"),("d202","james","w","orthopedics"),("d203","linda","l","pediatrics"),("d204","Robert","s","neurology"),("d205","sarah","a","dermatology"),("d206","Buran","samy","dermatology");
+
+
+create table department(did varchar(30),dept_name varchar(30),primary key(did));
+
+
+ insert into department values("dep301","cardiology");
+
+
+ insert into department values("dep302","orthopedics"),("dep303","pediatrics"),("dep304","neurology"),("dep305","dermatology");
+
+ create table appointments(aid varchar(30),pid varchar(30),did varchar(30),doa date,primary key(aid));
+
+
+ insert into appointments values("a401","p101","d201","2022-8-20"),("a402","p102","d202","2022-7-22"),("a403","p103","d203","2023-7-23"),("a404","p104","d204","2022-8-21"),("a405","p105","d205","2023-6-24"),("a406","p101","d203","2023-6-29");
+
+
+ insert into appointments values("a407","p101","d205","2023-8-15"),("a408","p102","d205","2023-8-16");
+
+ alter table appointments add foreign key(pid) references patients(pid);
+
+
+alter table appointments add foreign key(did) references doctors(did);
+
+
+
+1. List the patients Date of births, whose first name begins with letter ‘J’
+
+mysql> select dob from patients where fname like "j%";
++------------+
+| dob        |
++------------+
+| 1985-05-06 |
+| 1990-06-07 |
+| 1977-02-09 |
+| 1996-08-04 |
++------------+
+4 rows in set (0.04 sec)
+
+
+
+2. List the Doctors names, who treates patient with year of birth between 1980-1990.
+
+
+mysql> select distinct concat(d.fname," ",d.lname) from patients p,doctors d,appointments a where   a.pid=p.pid and a.did=d.did and year(dob) between 1980 and 1990 ;
++-----------------------------+
+| concat(d.fname," ",d.lname) |
++-----------------------------+
+| sarah a                     |
+| linda l                     |
+| james w                     |
++-----------------------------+
+3 rows in set (0.00 sec)
+
+
+3. What is the average age of patients who had appointments in each month, display the 
+months in ascending order of patients count per month.
+
+mysql> select month(doa),count(*) from appointments group by month(doa);
++------------+----------+
+| month(doa) | count(*) |
++------------+----------+
+|          8 |        4 |
+|          7 |        2 |
+|          6 |        2 |
++------------+----------+
+3 rows in set (0.05 sec)
+
+
+4. Count the number of patients took appointmnet in the "Cardiology" department.
+
+mysql> select count(*) from appointments a,doctors d where a.did=d.did and specialization="cardiology";
++----------+
+| count(*) |
++----------+
+|        1 |
++----------+
+1 row in set (0.04 sec)
+
+
+5. Display name of the patient who took appointment with Dermatology department . 
+
+mysql> select p.fname  from appointments a,doctors d,patients p where a.did=d.did and specialization="dermatology" and a.pid=p.pid;
++---------+
+| fname   |
++---------+
+| jasmine |
+| john    |
+| jane    |
++---------+
+3 rows in set (0.00 sec)
+
+
+6. Retrieve the patient names and their respective genders for patients older than 30 years.
+
+mysql> select fname from patients where (2023-year(dob))>30;
++---------+
+| fname   |
++---------+
+| john    |
+| jane    |
+| michael |
+| jasmine |
++---------+
+4 rows in set (0.00 sec)
+7. Which doctors had the most appointments in 8th month? List their names, specializations, 
+and appointment counts.
+
+mysql> select d.fname,specialization,count(*) from appointments a,doctors d where d.did=a.did and month(doa)=8  group by a.did having count(*) in(select max(c) from (select count(*) c from appointments where month(doa)=8 group by did) t);
++-------+----------------+----------+
+| fname | specialization | count(*) |
++-------+----------------+----------+
+| sarah | dermatology    |        2 |
++-------+----------------+----------+
+1 row in set (0.00 sec)
+
+
+8. List the number of appointments each doctor has scheduled, ordered by the number of 
+appointments in descending order.
+
+mysql> select did,count(*) from appointments group by did order by count(*) desc;
++------+----------+
+| did  | count(*) |
++------+----------+
+| d205 |        3 |
+| d203 |        2 |
+| d201 |        1 |
+| d202 |        1 |
+| d204 |        1 |
++------+----------+
+5 rows in set (0.05 sec)
+
+
+9. Display the patient names and genders for patients in descending order of names. 
+
+mysql> select fname,lname, gender from patients order by concat(fname,lname) desc;
++---------+-------+--------+
+| fname   | lname | gender |
++---------+-------+--------+
+| michael | j     | m      |
+| john    | d     | m      |
+| joe     | crane | f      |
+| jasmine | b     | m      |
+| jane    | s     | F      |
+| emily   | w     | f      |
++---------+-------+--------+
+6 rows in set (0.00 sec)
+
+
+10. Display the total number of appointments for each department, sorted by department name
+mysql> select dept_name,count(*) from department dp,appointments a,doctors d where a.did=d.did and specialization=dept_name group by dept_name order by dept_name;
++-------------+----------+
+| dept_name   | count(*) |
++-------------+----------+
+| cardiology  |        1 |
+| dermatology |        3 |
+| neurology   |        1 |
+| orthopedics |        1 |
+| pediatrics  |        2 |
++-------------+----------+
+5 rows in set (0.00 sec) 
+
+
+
+11. List the patient names who haven't scheduled any appointments.
+
+
+mysql> select fname ,lname from patients where pid not in (select pid from appointments);
++-------+-------+
+| fname | lname |
++-------+-------+
+| joe   | crane |
++-------+-------+
+1 row in set (0.00 sec)
+
+
+
+12. Display the patient names and the count of appointments they have scheduled.
+
+mysql> select fname,count(*) from appointments a,patients p where p.pid=a.pid group by a.pid;
++---------+----------+
+| fname   | count(*) |
++---------+----------+
+| john    |        3 |
+| jane    |        2 |
+| michael |        1 |
+| emily   |        1 |
+| jasmine |        1 |
++---------+----------+
+5 rows in set (0.00 sec)
+
+
+13. Find the patient name(s) who has the highest number of appointments.
+
+ select fname from patients p,appointments a where a.pid=p.pid group by a.pid having count(*) in (select max(c) from  (select count(*) c from appointments a,patients p where a.pid=p.pid group by a.pid) t);
++-------+
+| fname |
++-------+
+| john  |
++-------+
+1 row in set (0.00 sec)
+
+
+
+14. List the patient names with ages between 25 and 35.
+mysql> select fname from patients where (2023-year(dob)) between 25 and 35;
++-------+
+| fname |
++-------+
+| jane  |
+| emily |
+| joe   |
++-------+
+3 rows in set (0.00 sec)
+
+
+15. List the patient names who have appointments scheduled with doctors specializing in more than 
+one department. 
+
+
+mysql> select p.fname from doctors d,patients p ,appointments a where a.did=d.did and p.pid=a.pid and a.did in (select did from doctors group by did having(count(specialization)>1));
+Empty set (0.00 sec)
+
+
+16. List the patient names and their average age for patients who have made at least two 
+appointments.
+17. Display the patient first names who had appointments between 2023-08-19 to 2023-08-25.
+
+
+mysql>  select fname from patients p,appointments a  where  a.pid=p.pid and doa between "2023-06-19" and "2023-06-30";
++---------+
+| fname   |
++---------+
+| jasmine |
+| john    |
++---------+
+2 rows in set (0.00 sec)
+
+
+18. Retrieve the patients who have appointments in the Dermatology department, ordered by their 
+last names.
+ 
+mysql> select p.fname,p.lname from patients p,appointments a,doctors d where  a.pid=p.pid and a.did=d.did and specialization="dermatology" order by p.lname;
++---------+-------+
+| fname   | lname |
++---------+-------+
+| jasmine | b     |
+| john    | d     |
+| jane    | s     |
++---------+-------+
+3 rows in set (0.00 sec)
+
+
+
+
+
+
+

@@ -1,0 +1,32 @@
+ create table patients(pid varchar(30),fname varchar(30),lname varchar(30),gender varchar(30),dob date,primary key(pid));
+
+ insert into patients values("p101","john","d","m","1985-5-06"),("p102","jane","s","F","1990-6-7"),("p103","michael","j","m","1982-3-2"),("p104","emily","w","f","1998-9-8"),("p105","jasmine","b","m","1997-2-9"),("p106","joe","crane","f","1996-8-4");
+
+ update patients set dob="1977-2-9" where pid="p105";
+
+create table doctors (did varchar(30),fname varchar (30),lname varchar(30),specialization varchar(30) ,primary key(did));
+
+ insert into doctors values("d201","sarah","a","cardiology"),("d202","james","w","orthopedics"),("d203","linda","l","pediatrics"),("d204","Robert","s","neurology"),("d205","sarah","a","dermatology"),("d206","Buran","samy","dermatology");
+
+
+create table department(did varchar(30),dept_name varchar(30),primary key(did));
+
+
+ insert into department values("dep301","cardiology");
+
+
+ insert into department values("dep302","orthopedics"),("dep303","pediatrics"),("dep304","neurology"),("dep305","dermatology");
+
+ create table appointments(aid varchar(30),pid varchar(30),did varchar(30),doa date,primary key(aid));
+
+
+ insert into appointments values("a401","p101","d201","2022-8-20"),("a402","p102","d202","2022-7-22"),("a403","p103","d203","2023-7-23"),("a404","p104","d204","2022-8-21"),("a405","p105","d205","2023-6-24"),("a406","p101","d203","2023-6-29");
+
+
+ insert into appointments values("a407","p101","d205","2023-8-15"),("a408","p102","d205","2023-8-16");
+
+ alter table appointments add foreign key(pid) references patients(pid);
+
+
+alter table appointments add foreign key(did) references doctors(did);
+

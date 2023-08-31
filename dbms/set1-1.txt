@@ -1,0 +1,139 @@
+create table books (bid int not null,title varchar(30),author_id int ,pub_year int ,genre varchar(10) ,primary key(bid));
+
+
+insert into books values (1,"To Kill a Mockingbird",1,1960,"Fiction"),(2,"sherlockholmes",2,1949,"Fiction"),(3,"The Great Gatsby",3,1925,"Classics"),(4,"The Hobbit",4,1937,"Fantasy"),(5,"Pride and Prejudice",5,1813,"Romance");
+
+
+ create table authors (aid int NOT NULL,aname varchar (30),nationality varchar(30) ,b_year int ,gender varchar(8), primary key(aid));
+ insert into authors values(1,"Harper Lee","American",1926,"Female"), (2,"George Orwell","British",1903,"Male"), (3,"F. Scott Fitzgerald","American",1896,"Male"), (4,"J.R.R. Tolkien","British",1892,"Male"), (5,"Jane Austen","British",1775,"Female");
+
+
+
+create table library(lid int NOT NULL,lname varchar(30),loc varchar(20),capacity int,hrs varchar(20),primary key(lid));
+
+insert into library values(1,"Central Library","New York",1000,"9 AM - 9 PM"), (2,"City Public Library","London",800,"10 AM - 8 PM"),(3,"National Library","Paris",1200,"8 AM - 10 PM"), (4,"Community Library","Sydney",600,"10 AM - 7 PM"), (5,"County Library","Los Angeles",1500,"8 AM - 9 PM");
+
+
+create table lib_books (lid int,bid  int ,primary key(lid,bid),foreign key (lid) references library(lid) ,foreign key (bid) references books(bid));
+ insert into lib_books values(1,1),(1,3),(2,1),(3,2),(4,4),(5,5);
+
+
+1. Question: What is the title of the text book, authored by a female author and published 
+before the year 1950?
+ select title from books b,authors a where b.author_id=a.aid and gender="Female" and pub_year<1950;
++---------------------+
+| title               |
++---------------------+
+| Pride and Prejudice |
++---------------------+
+
+2.Question: What are the names of the authors whose books are available in the "Central 
+Library"?
+ select aname from  books b,authors a,lib_books lb,library l where b.author_id=a.aid and b.bid=lb.bid and l.lid=lb.lid and l.lname="Central Library";
++---------------------+
+| aname               |
++---------------------+
+| Harper Lee          |
+| F. Scott Fitzgerald |
++---------------------+
+
+3.Question: Which library has the Third highest book capacity? ( Display library name)
+select * from library order by capacity desc limit 1 offset 2;
++-----+-----------------+----------+----------+-------------+
+| lid | lname           | loc      | capacity | hrs         |
++-----+-----------------+----------+----------+-------------+
+|   1 | Central Library | New York |     1000 | 9 AM - 9 PM |
++-----+-----------------+----------+----------+-------------+
+select lname,capacity from library order by capacity desc limit 1 offset 2;
++-----------------+----------+
+| lname           | capacity |
++-----------------+----------+
+| Central Library |     1000 |
++-----------------+----------+ 
+
+
+mysql> select max(capacity) from library l where capacity not in(select max(capacity) from library where capacity not in (select max(capacity) from library)) and capacity not in (select max(capacity) from library) ;
++---------------+
+| max(capacity) |
++---------------+
+|          1000 |
++---------------+
+1 row in set (0.04 sec) 
+ 
+
+
+mysql> select lname from library order by capacity desc limit 1 offset 2;
++-----------------+
+| lname           |
++-----------------+
+| Central Library |
++-----------------+
+1 row in set (0.00 sec)
+ 
+
+
+
+mysql> select min(c) from (select capacity c from library order by capacity desc limit 3) t;
++--------+
+| min(c) |
++--------+
+|   1000 |
++--------+
+1 row in set (0.00 sec)
+
+
+4. Question: What are the publication year of books in the "City Public Library"?
+select pub_year from books b,lib_books lb,library l where b.bid=lb.bid and lb.lid=l.lid and lname="City Public Library";
++----------+
+| pub_year |
++----------+
+|     1960 |
++----------+
+
+5. Question: How many books are there in each genre? ( Display genre and books count)
+mysql> select genre,count(*) as count from books group by genre;
++----------+-------+
+| genre    | count |
++----------+-------+
+| Fiction  |     2 |
+| Classics |     1 |
+| Fantasy  |     1 |
+| Romance  |     1 |
++----------+-------+
+4 rows in set (0.00 sec)
+
+6. Question: Display the titles of the text books authored by the authors with date of birth 
+between 1900 -1950 ?
+select title from books b,authors a where author_id=a.aid and b_year between 1900 and 1950;
++-----------------------+
+| title                 |
++-----------------------+
+| To Kill a Mockingbird |
+| sherlockholmes        |
++-----------------------+
+
+
+7. Question: Which author has the oldest published book?
+ select aname from books b,authors a where author_id=aid and pub_year=(select min(pub_year) from books) ;
++-------------+
+| aname       |
++-------------+
+| Jane Austen |
++-------------+
+
+8. Question: How many books ( with year of publication >1950) are available in each library, 
+sorted in descending order of book count?
+select lname,count(lb.bid) from books b,lib_books lb ,library l where b.bid=lb.bid and lb.lid=l.lid and pub_year>1950 group by l.lid order by count(lb.bid) desc;
++---------------------+---------------+
+| lname               | count(lb.bid) |
++---------------------+---------------+
+| Central Library     |             1 |
+| City Public Library |             1 |
++---------------------+---------------+
+
+
+
+
+
+
+

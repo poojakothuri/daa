@@ -1,0 +1,239 @@
+Enter password: **********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 8.0.32 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database practice;
+Query OK, 1 row affected (0.11 sec)
+
+mysql> use practice;
+Database changed
+mysql> create table customers(cid int,cname varchar(30),email varchar(50),pno int,primary key(cid));
+Query OK, 0 rows affected (0.22 sec)
+
+mysql> insert into customer values(1,"jd","jd@gmail.com",1234567890),(2,"js",js@gmail.com",9876454321),(3,"mb",mb@gmail.com",5551234567),(4,"ed","ed@gmail.com",7778889999),(5,"sj","sj@gmail.com",1112223333);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '@gmail.com",9876454321),(3,"mb",mb@gmail.com",5551234567),(4,"ed","ed@gmail.com"' at line 1
+mysql> insert into customer values(1,"jd","jd@gmail.com",1234567890),(2,"js",js@gmail.com",9876454321),(3,"mb","mb@gmail.com",5551234567),(4,"ed","ed@gmail.com",7778889999),(5,"sj","sj@gmail.com",1112223333);
+    "> ^C
+mysql> insert into customer values(1,"jd","jd@gmail.com",1234567890),(2,"js","js@gmail.com",9876454321),(3,"mb","mb@gmail.com",5551234567),(4,"ed","ed@gmail.com",7778889999),(5,"sj","sj@gmail.com",1112223333);
+ERROR 1146 (42S02): Table 'practice.customer' doesn't exist
+mysql> insert into customers values(1,"jd","jd@gmail.com",1234567890),(2,"js","js@gmail.com",9876454321),(3,"mb","mb@gmail.com",5551234567),(4,"ed","ed@gmail.com",7778889999),(5,"sj","sj@gmail.com",1112223333);
+ERROR 1264 (22003): Out of range value for column 'pno' at row 2
+mysql> insert into customers values(1,"jd","jd@gmail.com",1234567890),(2,"js","js@gmail.com",9876454321),(3,"mb","mb@gmail.com",5551234567),(4,"ed","ed@gmail.com",7778889999),(5,"sj","sj@gmail.com",1112223333)
+    -> ;
+ERROR 1264 (22003): Out of range value for column 'pno' at row 2
+mysql> alter table customers modify pno varchar(30);
+Query OK, 0 rows affected (0.57 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> insert into customers values(1,"jd","jd@gmail.com",1234567890),(2,"js","js@gmail.com",9876454321),(3,"mb","mb@gmail.com",5551234567),(4,"ed","ed@gmail.com",7778889999),(5,"sj","sj@gmail.com",1112223333);
+Query OK, 5 rows affected (0.06 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select* from customers;
++-----+-------+--------------+------------+
+| cid | cname | email        | pno        |
++-----+-------+--------------+------------+
+|   1 | jd    | jd@gmail.com | 1234567890 |
+|   2 | js    | js@gmail.com | 9876454321 |
+|   3 | mb    | mb@gmail.com | 5551234567 |
+|   4 | ed    | ed@gmail.com | 7778889999 |
+|   5 | sj    | sj@gmail.com | 1112223333 |
++-----+-------+--------------+------------+
+5 rows in set (0.04 sec)
+
+mysql> alter table customers modify pno varchar(20);
+Query OK, 5 rows affected (0.17 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> create table orders(oid int,cid int,pid int,date day,amount real,primary key(oid),foreign key(cid) references customers(cid) );
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'day,amount real,primary key(oid),foreign key(cid) references customers(cid) )' at line 1
+mysql> create table orders(oid int,cid int,pid int,date day,amount real,primary key(oid),foreign key(cid) references customers(cid));
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'day,amount real,primary key(oid),foreign key(cid) references customers(cid))' at line 1
+mysql> create table orders(oid int,cid int,pid int,order_date date,amount real,primary key(oid),foreign key(cid) references customers(cid));
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> insert into orders values(1,2,1,'2023-06-20;,150.00);
+mysql> insert into orders values(1,2,1,'2023-06-20',150.00);
+Query OK, 1 row affected (0.07 sec)
+
+mysql> select * from orders;
++-----+------+------+------------+--------+
+| oid | cid  | pid  | order_date | amount |
++-----+------+------+------------+--------+
+|   1 |    2 |    1 | 2023-06-20 |    150 |
++-----+------+------+------------+--------+
+1 row in set (0.00 sec)
+
+mysql> insert into orders values(2,1,2,'2023-06-22',75.50),(3,4,3,'2023-06-25',200.00),(4,3,4,'2023-06-27',50.00),(5,2,5,'2023-06-29',300.00);
+Query OK, 4 rows affected (0.06 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select * from orders;
++-----+------+------+------------+--------+
+| oid | cid  | pid  | order_date | amount |
++-----+------+------+------------+--------+
+|   1 |    2 |    1 | 2023-06-20 |    150 |
+|   2 |    1 |    2 | 2023-06-22 |   75.5 |
+|   3 |    4 |    3 | 2023-06-25 |    200 |
+|   4 |    3 |    4 | 2023-06-27 |     50 |
+|   5 |    2 |    5 | 2023-06-29 |    300 |
++-----+------+------+------------+--------+
+5 rows in set (0.00 sec)
+
+mysql> create table products(pid int,pname varchar(30),price real);
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> alter table products add primary key(pid);
+Query OK, 0 rows affected (0.17 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> insert into products values(1,"tshirt",20),(2,"jeans",50),(3,"shoes",80),(4,"hat",15),(5,"jacket",100);
+Query OK, 5 rows affected (0.03 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select * from products;
++-----+--------+-------+
+| pid | pname  | price |
++-----+--------+-------+
+|   1 | tshirt |    20 |
+|   2 | jeans  |    50 |
+|   3 | shoes  |    80 |
+|   4 | hat    |    15 |
+|   5 | jacket |   100 |
++-----+--------+-------+
+5 rows in set (0.00 sec)
+
+
+
+1. Retrieve the total number of orders for each customer.
+
+
+mysql> select cid,count(cid) as number_of_orders from orders group by cid;
++------+------------------+
+| cid  | number_of_orders |
++------+------------------+
+|    1 |                1 |
+|    2 |                2 |
+|    3 |                1 |
+|    4 |                1 |
++------+------------------+
+4 rows in set (0.00 sec)
+
+
+2. Retrieve the order details (order_id, customer_name, total_amount) for orders with a total amount
+greater than $100.
+
+mysql> select o.cid,cname,amount from customers c,orders o where o.cid=c.cid and amount>100;
++------+-------+--------+
+| cid  | cname | amount |
++------+-------+--------+
+|    2 | js    |    150 |
+|    4 | ed    |    200 |
+|    2 | js    |    300 |
++------+-------+--------+
+3 rows in set (0.00 sec) 
+
+
+3. Retrieve the customer name and the count of their orders, only for customers who have placed 
+more than 1 order. 
+mysql> select cname,count(o.cid) as count from customers c,orders o where c.cid=o.cid  group by(o.cid) having count(o.cid)>1;
++-------+-------+
+| cname | count |
++-------+-------+
+| js    |     2 |
++-------+-------+
+1 row in set (0.05 sec)
+
+4. Retrieve the customer name and the total amount of their orders, sorted by the total amount in 
+descending order. 
+
+mysql> select cname,sum(amount) from customers c,orders o where c.cid=o.cid group by o.cid order by sum(amount) desc;
++-------+-------------+
+| cname | sum(amount) |
++-------+-------------+
+| js    |         450 |
+| ed    |         200 |
+| jd    |        75.5 |
+| mb    |          50 |
++-------+-------------+
+4 rows in set (0.00 sec)
+
+
+5. Retrieve the product names and their corresponding orders' count.
+mysql> select pname,count(o.pid) as count from products p,orders o where o.pid=p.pid  group by o.pid;
++--------+-------+
+| pname  | count |
++--------+-------+
+| tshirt |     1 |
+| jeans  |     1 |
+| shoes  |     1 |
+| hat    |     1 |
+| jacket |     1 |
++--------+-------+
+5 rows in set (0.00 sec)
+6. Retrieve the customer names and the average total amount of their orders, only for customers 
+with an average total amount greater than $100.
+
+mysql> select cname,avg(amount) from customers c ,orders o where c.cid=o.cid group by o.cid having avg(amount)>100;
++-------+-------------+
+| cname | avg(amount) |
++-------+-------------+
+| js    |         225 |
+| ed    |         200 |
++-------+-------------+
+2 rows in set (0.05 sec)
+
+
+7. Retrieve the customer names and the product names they have ordered, only for customers who 
+have ordered the product with product_id = 2.
+
+
+mysql> select cname,pname from customers c,orders o,products p where c.cid=o.cid and o.pid=p.pid and o.pid=2;
++-------+-------+
+| cname | pname |
++-------+-------+
+| jd    | jeans |
++-------+-------+
+1 row in set (0.00 sec)
+
+
+8. Retrieve the customer names and their corresponding order count, only for customers who have 
+placed more orders than the average order count.  
+
+mysql> (select cid, count(cid) as c from orders group by cid);
++------+---+
+| cid  | c |
++------+---+
+|    1 | 1 |
+|    2 | 2 |
+|    3 | 1 |
+|    4 | 1 |
++------+---+
+4 rows in set (0.00 sec)
+
+mysql> select avg(c) from (select count(cid) as c from orders group by cid)t;
++--------+
+| avg(c) |
++--------+
+| 1.2500 |
++--------+
+
+
+
+
+mysql> select cname,count(o.cid) from orders o,customers c where o.cid=c.cid group by o.cid having count(o.cid) >(select avg(c) from (select count(cid) as c from orders group by cid)t);
++-------+--------------+
+| cname | count(o.cid) |
++-------+--------------+
+| js    |            2 |
++-------+--------------+
+1 row in set (0.03 sec)
